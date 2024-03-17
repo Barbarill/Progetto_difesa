@@ -4,19 +4,41 @@ using UnityEngine;
 
 public class player_movement : MonoBehaviour
 {
-    public float speed = 5f; // Velocità di movimento del personaggio
+    private Rigidbody2D zelena;
+    private float dirX = 0f;
+    private SpriteRenderer sprite;
+    private Animator anim;
 
-    // Update viene chiamato ad ogni frame
-    void Update()
+    private void Start()
     {
-        // Ottieni l'input orizzontale e verticale dalle frecce della tastiera
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+        zelena = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+        sprite = GetComponent<SpriteRenderer>();
+    }
 
-        // Calcola la direzione di movimento
-        Vector3 movement = new Vector3(moveHorizontal, 0f, moveVertical);
+    private void Update()
+    {
+        dirX = Input.GetAxisRaw("HorizontalZ");
+        zelena.velocity = new Vector2(dirX * 3.5f, zelena.velocity.y);
 
-        // Applica il movimento relativo alla velocità e al tempo
-        transform.Translate(movement * speed * Time.deltaTime);
+        UpdateAnimation();
+    }
+
+    private void UpdateAnimation()
+    {
+        if (dirX > 0f)
+        {
+            anim.SetBool("run_Z", true);
+            sprite.flipX = false;
+        }
+        else if (dirX < 0f)
+        {
+            anim.SetBool("run_Z", true);
+            sprite.flipX = true;
+        }
+        else
+        {
+            anim.SetBool("run_Z", false);
+        }
     }
 }
