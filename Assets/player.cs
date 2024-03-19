@@ -1,23 +1,69 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
+[DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
 public class player : MonoBehaviour
 {
-    public float moveSpeed = 5f; // Velocità di movimento del personaggio
+    public float moveSpeed;
+    public LayerMask terreno1Layer;
 
-    // Update viene chiamato ad ogni frame
-    void Update()
+    private bool isMoving;
+    private Vector2 input;
+
+
+    private void Update()
     {
-        // Input orizzontale (tasti A e D)
-        float horizontalInput = Input.GetAxis("Horizontal");
-        // Input verticale (tasti W e S)
-        float verticalInput = Input.GetAxis("Vertical");
+        if (!isMoving)
+        {
+            input.x = Input.GetAxisRaw("Horizontal");
+            input.y = Input.GetAxisRaw("Vertical");
 
-        // Calcoliamo la direzione di movimento
-        Vector3 movement = new Vector3(horizontalInput, 0f, verticalInput) * moveSpeed * Time.deltaTime;
+            //remove diagonal movement
+            if (input.x != 0) input.y = 0;
 
-        // Applichiamo il movimento al transform del personaggio
-        transform.Translate(movement);
+            if (input != Vector2.zero)
+            {
+                var targetPos = transform.position;
+                targetPos.x += input.x;
+                targetPos.y += input.y;
+
+                if (IsWalkble(targetPos))
+                    StartCoroutine(Move(targetPos));
+            }
+        }
+
+        //animator.SetBool("isMoving", isMoving);
+    }
+
+    IEnumerator Move(Vector3 targetPos)
+    {
+        isMoving = true;
+
+        while ((targetPos - transform.position).sqrMagnitude > Mathf.Epsilon)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+            yield return null;
+        }
+        transform.position = targetPos;
+
+        isMoving = false;
+    }
+
+    private string GetDebuggerDisplay()
+    {
+        return ToString();
+    }
+
+    //collissioni
+    private bool IsWalkble(Vector3 targetPos)
+    {
+        if (Physics2D.OverlapCircle(targetPos, 0.3f, terreno1Layer) != null)
+        {
+            return false;
+        }
+
+        return true;
     }
 }

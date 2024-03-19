@@ -4,19 +4,45 @@ using UnityEngine;
 
 public class CharacterMovement : MonoBehaviour
 {
-    public float speed = 5f; // Velocità di movimento del personaggio
+    public float moveSpeed;
 
-    // Update viene chiamato ad ogni frame
-    void Update()
+    private bool isMoving;
+    private Vector2 input;
+
+
+    private void Update()
     {
-        // Ottieni l'input orizzontale e verticale dalle frecce della tastiera
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+        if (!isMoving)
+        {
+            input.x = Input.GetAxisRaw("Horizontal");
+            input.y = Input.GetAxisRaw("Vertical");
 
-        // Calcola la direzione di movimento
-        Vector3 movement = new Vector3(moveHorizontal, 0f, moveVertical);
+            //remove diagonal movement
+            if (input.x != 0) input.y = 0;
 
-        // Applica il movimento relativo alla velocità e al tempo
-        transform.Translate(movement * speed * Time.deltaTime);
+            if (input != Vector2.zero)
+            {
+                var targetPos = transform.position;
+                targetPos.x += input.x;
+                targetPos.y += input.y;
+
+                StartCoroutine(Move(targetPos));
+            }
+        }
+    }
+
+    IEnumerator Move(Vector3 targetPos)
+    {
+        isMoving = true;
+
+        while ((targetPos - transform.position). sqrMagnitude > Mathf.Epsilon)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+            yield return null;
+        } 
+        transform.position = targetPos;
+
+        isMoving = false;
+            
     }
 }
