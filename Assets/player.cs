@@ -8,9 +8,17 @@ public class player : MonoBehaviour
 {
     public float moveSpeed;
     public LayerMask terreno1Layer;
+    public LayerMask interactableLayer;
 
     private bool isMoving;
     private Vector2 input;
+
+    private Animator animator;
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
 
 
     private void Update()
@@ -25,6 +33,9 @@ public class player : MonoBehaviour
 
             if (input != Vector2.zero)
             {
+                animator.SetFloat("moveX", input.x);
+                animator.SetFloat("moveY", input.y);
+
                 var targetPos = transform.position;
                 targetPos.x += input.x;
                 targetPos.y += input.y;
@@ -34,7 +45,24 @@ public class player : MonoBehaviour
             }
         }
 
-        //animator.SetBool("isMoving", isMoving);
+        animator.SetBool("isMoving", isMoving);
+
+        if (Input.GetKeyDown(KeyCode.Z))
+            Interact();
+    }
+
+    void Interact()
+    {
+        var facingDir = new Vector3(animator.GetFloat("moveX"), animator.GetFloat("moveY"));
+        var interactPos = transform.position + facingDir;
+
+        //UnityEngine.Debug.DrawLine(transform.position, interactPos, Color.green, 0.5f);
+
+        var collider = Physics2D.OverlapCircle(interactPos, 0.3f, interactableLayer);
+        if (collider != null)
+        {
+            collider.GetComponent<NPCcontroller>();
+        }
     }
 
     IEnumerator Move(Vector3 targetPos)
@@ -59,7 +87,7 @@ public class player : MonoBehaviour
     //collissioni
     private bool IsWalkble(Vector3 targetPos)
     {
-        if (Physics2D.OverlapCircle(targetPos, 0.3f, terreno1Layer) != null)
+        if (Physics2D.OverlapCircle(targetPos, 0.3f, terreno1Layer | interactableLayer) != null)
         {
             return false;
         }
