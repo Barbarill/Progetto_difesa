@@ -61,7 +61,7 @@ public class player : MonoBehaviour
         var collider = Physics2D.OverlapCircle(interactPos, 0.3f, interactableLayer);
         if (collider != null)
         {
-            collider.GetComponent<NPCcontroller>();
+            collider.GetComponent<interactable>()?.Interact ();
         }
     }
 
