@@ -7,5 +7,8 @@ public class Dialog //qui potremmo aggiungere anche qualcosa da dare al personag
 {
     [SerializeField] List<string> lines;
 
-    public List<string> Lines => lines;
+    public List<string> Lines
+    {
+        get { return lines; }
+    }
 }
