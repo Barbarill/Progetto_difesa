@@ -9,11 +9,13 @@ public class player : MonoBehaviour
     public float moveSpeed;
     public LayerMask terreno1Layer;
     public LayerMask interactableLayer;
+    public LayerMask TriggerableLayer;
 
     private bool isMoving;
     private Vector2 input;
 
     private Animator animator;
+    private float radius;
 
     private void Awake()
     {
@@ -62,6 +64,21 @@ public class player : MonoBehaviour
         if (collider != null)
         {
             collider.GetComponent<interactable>()?.Interact ();
+        }
+    }
+
+    private void OnMoveOver()
+    {
+        var colliders = Physics2D.OverlapCircleAll(transform.position, radius, 1 << TriggerableLayer);
+
+        foreach (var collider in colliders)
+        {
+            var triggerable = collider.GetComponent<IPlayerTriggerable>();
+            if (triggerable != null)
+            {
+                triggerable.OnPlayerTriggerd(this);
+                break;
+            }
         }
     }
 
